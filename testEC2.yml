@@ -8,10 +8,10 @@ Parameters:
   MyIP:
     Description: IP address allowed to access EC2
     Type: String
-  # RHEL 8.5
+  # RHEL 8.4
   Ec2ImageId:
     Type: String
-    Default: ami-00c8dfcb0b542ee0c
+    Default: ami-09ed1fd8c4c00daca
   Ec2InstanceType:
     Type: String
     Default: t3.small
@@ -99,155 +99,13 @@ Resources:
         dnf update -y
         dnf install -y wget unzip
         # libicu is needed by postgres
-        dnf install -y libicu
+        #dnf install -y libicu
         # perl-libs is needed by postgresql-contrib
-        dnf install -y perl-libs
+        #dnf install -y perl-libs
         
-        # install postgres 13.5
-        wget --tries=3 https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-8-x86_64/postgresql13-server-13.5-1PGDG.rhel8.x86_64.rpm
-        wget --tries=3 https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-8-x86_64/postgresql13-libs-13.5-1PGDG.rhel8.x86_64.rpm
-        wget --tries=3 https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-8-x86_64/postgresql13-13.5-1PGDG.rhel8.x86_64.rpm
-        rpm -ivh postgresql13-13.5-1PGDG.rhel8.x86_64.rpm postgresql13-libs-13.5-1PGDG.rhel8.x86_64.rpm postgresql13-server-13.5-1PGDG.rhel8.x86_64.rpm
+        # install postgres 14.0
         
         # setup postgres
-        /usr/pgsql-13/bin/postgresql-13-setup initdb
-        systemctl enable postgresql-13
-        
-        # set PostgreSQL admin user's password
-        sudo -iu postgres psql -c "alter user postgres with password 'password'"
-        
-        # set bin command path
-        sudo -iu postgres echo "export PATH=$PATH:/usr/pgsql-13/bin/" >> /var/lib/pgsql/.pgsql_profile
-
-        # Enabling remote Database connections
-        echo "listen_addresses = '*'" >> /var/lib/pgsql/13/data/postgresql.conf
-        # Accept from anywhere (not recommended)
-        echo "host all all 0.0.0.0/0 md5" >> /var/lib/pgsql/13/data/pg_hba.conf
-        # Restart the database service after saving the changes
-        systemctl restart postgresql-13
-        
-        
-        # install postgres tools
-        wget --tries=3 https://github.com/ossc-db/pg_bulkload/releases/download/VERSION3_1_19/pg_bulkload-3.1.19-1.pg13.rhel8.x86_64.rpm
-        wget --tries=3 https://github.com/ossc-db/pg_rman/releases/download/V1.3.14/pg_rman-1.3.14-1.pg13.rhel8.x86_64.rpm
-        wget --tries=3 https://versaweb.dl.sourceforge.net/project/pgstatsinfo/pg_statsinfo/13.0/pg_statsinfo-13.0-1.pg13.rhel8.x86_64.rpm
-        wget --tries=3 https://download.postgresql.org/pub/repos/yum/13/redhat/rhel-8-x86_64/postgresql13-contrib-13.5-1PGDG.rhel8.x86_64.rpm
-        wget --tries=3 https://ja.osdn.net/projects/pgstoreplans/downloads/74517/pg_store_plans13-1.5-1.el8.x86_64.rpm
-
-        rpm -ivh pg_bulkload-3.1.19-1.pg13.rhel8.x86_64.rpm \
-        pg_rman-1.3.14-1.pg13.rhel8.x86_64.rpm \
-        pg_statsinfo-13.0-1.pg13.rhel8.x86_64.rpm \
-        postgresql13-contrib-13.5-1PGDG.rhel8.x86_64.rpm \
-        pg_store_plans13-1.5-1.el8.x86_64.rpm
-        
-        # Setting pg_statsinfo
-        
-        ## Set postgresql.conf
-        cat <<EOF >> /var/lib/pgsql/13/data/postgresql.conf
-        # 推奨設定
-        shared_preload_libraries = 'pg_statsinfo,pg_stat_statements,pg_store_plans'
-           # 事前ロードを行う。
-           # クエリ統計取得のためpg_stat_statements追加
-           # クエリ実行計画取得のためpg_store_plans追加
-        
-        track_counts = 'on'                             # データベースの活動に関する統計情報の取集設定
-        track_activities = 'on'                         # セッションで実行中のコマンドに関する情報収集
-
-        pg_statsinfo.snapshot_interval = 10min          # スナップショットの取得間隔
-        pg_statsinfo.enable_maintenance = 'on'          # 自動メンテナンス設定
-        pg_statsinfo.maintenance_time = '00:02:00'      # 自動メンテナンス実行時刻設定
-        pg_statsinfo.repolog_min_messages = disable     # ログ蓄積機能の設定
-        
-        log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log' # ログファイル名を指定する
-        log_min_messages = 'log'                        # ログへ出力するメッセージレベル。 
-        pg_statsinfo.syslog_min_messages = 'error'      # syslogに出力するログレベルを指定する。
-        pg_statsinfo.textlog_line_prefix = '%t %p %c-%l %x %q(%u, %d, %r, %a) '
-           # pg_statsinfoがテキストログに出力する際、各行の先頭に追加される書式を指定する。log_line_prefixと同じ形式で指定する。
-        pg_statsinfo.syslog_line_prefix = '%t %p %c-%l %x %q(%u, %d, %r, %a) '
-           # pg_statsinfoがsyslog経由でログを出力する際、各行の先頭に追加される書式を指定する。
-        
-        track_functions = 'all'                         # ストアドプロシージャの呼び出しに関する統計情報を収集する
-        log_checkpoints = on                            # チェックポイントを記録
-        log_autovacuum_min_duration = 0                 # 自動バキュームを記録
-        #pg_statsinfo.long_lock_threshold = 30s         # ロック競合情報に記録する対象の条件(閾値)を指定する
-        EOF
-        
-        ## set pg_hba.conf
-        sed -i '1s/^/local   all             postgres                                ident\n/' /var/lib/pgsql/13/data/pg_hba.conf
-        
-        ## 追加ライブラリ読み込み
-        sudo -iu postgres psql -d postgres -c "CREATE EXTENSION pg_stat_statements"
-        sudo -iu postgres psql -d postgres -c "CREATE EXTENSION pg_store_plans"
-        
-        # pg_stas_reporter
-        # sudo dnf install -y pg_stats_reporter-13.0-1.el8.noarch.rpm php-intl
-        # download rpm from http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/
-        # mirrorサイトの名前解決に失敗したら3回までリトライする
-        wget --tries=3 https://sourceforge.net/projects/pgstatsinfo/files/pg_stats_reporter/13.0/pg_stats_reporter-13.0-1.el8.noarch.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/apr-1.6.3-12.el8.x86_64.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/apr-util-openssl-1.6.1-6.el8.x86_64.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/apr-util-bdb-1.6.1-6.el8.x86_64.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/apr-util-1.6.1-6.el8.x86_64.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/php-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/php-common-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/php-fpm-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/php-intl-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/php-cli-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/php-xml-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/php-pdo-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/php-pgsql-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/mod_http2-1.15.7-3.module_el8.4.0+778+c970deab.x86_64.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/libpq-13.3-1.el8_4.x86_64.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/httpd-tools-2.4.37-43.module_el8.5.0+1022+b541f3b1.x86_64.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/httpd-filesystem-2.4.37-43.module_el8.5.0+1022+b541f3b1.noarch.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/httpd-2.4.37-43.module_el8.5.0+1022+b541f3b1.x86_64.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/libxslt-devel-1.1.32-6.el8.x86_64.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/libxslt-1.1.32-6.el8.x86_64.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/nginx-filesystem-1.14.1-9.module_el8.0.0+1060+3ab382d3.noarch.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/mailcap-2.1.48-3.el8.noarch.rpm
-        wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/centos-logos-httpd-85.8-2.el8.noarch.rpm
-
-        rpm -ivh pg_stats_reporter-13.0-1.el8.noarch.rpm \
-        apr-1.6.3-12.el8.x86_64.rpm \
-        apr-util-openssl-1.6.1-6.el8.x86_64.rpm \
-        apr-util-bdb-1.6.1-6.el8.x86_64.rpm \
-        apr-util-1.6.1-6.el8.x86_64.rpm \
-        php-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm \
-        php-common-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm \
-        php-fpm-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm \
-        php-intl-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm \
-        php-cli-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm \
-        php-xml-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm \
-        php-pdo-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm \
-        php-pgsql-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm \
-        mod_http2-1.15.7-3.module_el8.4.0+778+c970deab.x86_64.rpm \
-        libpq-13.3-1.el8_4.x86_64.rpm \
-        httpd-tools-2.4.37-43.module_el8.5.0+1022+b541f3b1.x86_64.rpm \
-        httpd-filesystem-2.4.37-43.module_el8.5.0+1022+b541f3b1.noarch.rpm \
-        httpd-2.4.37-43.module_el8.5.0+1022+b541f3b1.x86_64.rpm \
-        libxslt-1.1.32-6.el8.x86_64.rpm \
-        mailcap-2.1.48-3.el8.noarch.rpm \
-        centos-logos-httpd-85.8-2.el8.noarch.rpm \
-        nginx-filesystem-1.14.1-9.module_el8.0.0+1060+3ab382d3.noarch.rpm
-
-        ## set repository db
-        sed -i s/'host = dbserver01'/'host = localhost'/g /etc/pg_stats_reporter.ini
-        sed -i s/';password ='/'password = password'/g /etc/pg_stats_reporter.ini
-        # change SELinux for DB
-        # https://dev.classmethod.jp/articles/redhat-selinx-might-block-network-connection-to-servers-from-apache-php/
-        # sudo setsebool -P httpd_can_network_connect_db=1
-        # sudo chcon -h system_u:httpd_sys_rw_content_t /var/www/pg_stats_reporter_lib/{cache,compiled}
-        sed -i s/'SELINUX=enforcing'/'SELINUX=disabled'/g /etc/selinux/config
-        
-        # sudo systemctl start httpd.service
-        systemctl enable httpd.service
-        
-        
-        # set sample data
-        sudo -iu postgres psql -c "create database dvdrental;"
-        sudo -iu postgres wget --tries=3 https://www.postgresqltutorial.com/wp-content/uploads/2019/05/dvdrental.zip
-        sudo -iu postgres unzip dvdrental.zip
-        sudo -iu postgres /usr/pgsql-13/bin/pg_restore -U postgres -d dvdrental ./dvdrental.tar
 
         # hostname設定のため再起動
         shutdown -r now
