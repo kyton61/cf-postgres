@@ -190,6 +190,83 @@ Resources:
         libgpg-error-devel-1.12-3.el7.x86_64.rpm
         
         
+        # postgre本体の初期セットアップ
+        /usr/pgsql-14/bin/postgresql-14-setup initdb
+        ## TODO:クラスタDBディレクトリの指定する
+        systemctl enable postgresql-14
+        systemctl start postgresql-14
+        # set PostgreSQL admin user's password 
+        sudo -iu postgres psql -c "alter user postgres with password 'password'" 
+        # set bin command path 
+        sudo -iu postgres echo "export PATH=$PATH:/usr/pgsql-14/bin/" >> /var/lib/pgsql/.pgsql_profile 
+        # Enabling remote Database connections 
+        echo "listen_addresses = '*'" >> /var/lib/pgsql/14/data/postgresql.conf 
+        # Accept from anywhere (not recommended) 
+        echo "host all all 0.0.0.0/0 md5" >> /var/lib/pgsql/14/data/pg_hba.conf 
+        # Restart the database service after saving the changes 
+        systemctl restart postgresql-14
+        
+        
+        
+        # pg_statsinfo/pg_store_plansの初期セットアップ
+        ## Set postgresql.conf 
+        cat <<EOF >> /var/lib/pgsql/14/data/postgresql.conf 
+        # 推奨設定 
+        shared_preload_libraries = 'pg_statsinfo,pg_stat_statements,pg_store_plans' 
+           # 事前ロードを行う。 
+           # クエリ統計取得のためpg_stat_statements追加 
+           # クエリ実行計画取得のためpg_store_plans追加 
+        track_counts = 'on'                             # データベースの活動に関する統計情報の取集設定 
+        track_activities = 'on'                         # セッションで実行中のコマンドに関する情報収集 
+        pg_statsinfo.snapshot_interval = 10min          # スナップショットの取得間隔 
+        pg_statsinfo.enable_maintenance = 'on'          # 自動メンテナンス設定 
+        pg_statsinfo.maintenance_time = '00:02:00'      # 自動メンテナンス実行時刻設定 
+        pg_statsinfo.repolog_min_messages = disable     # ログ蓄積機能の設定 
+        log_filename = 'postgresql-%Y-%m-%d_%H%M%S.log' # ログファイル名を指定する 
+        log_min_messages = 'log'                        # ログへ出力するメッセージレベル。 
+        pg_statsinfo.syslog_min_messages = 'error'      # syslogに出力するログレベルを指定する。 
+        pg_statsinfo.textlog_line_prefix = '%t %p %c-%l %x %q(%u, %d, %r, %a) ' 
+           # pg_statsinfoがテキストログに出力する際、各行の先頭に追加される書式を指定する。log_line_prefixと同じ形式で指定する。 
+        pg_statsinfo.syslog_line_prefix = '%t %p %c-%l %x %q(%u, %d, %r, %a) ' 
+           # pg_statsinfoがsyslog経由でログを出力する際、各行の先頭に追加される書式を指定する。 
+        track_functions = 'all'                         # ストアドプロシージャの呼び出しに関する統計情報を収集する 
+        log_checkpoints = on                            # チェックポイントを記録 
+        log_autovacuum_min_duration = 0                 # 自動バキュームを記録 
+        #pg_statsinfo.long_lock_threshold = 30s         # ロック競合情報に記録する対象の条件(閾値)を指定する 
+        EOF 
+        ## set pg_hba.conf 
+        sed -i '1s/^/local   all             postgres                                ident\n/' /var/lib/pgsql/14/data/pg_hba.conf 
+        ## 追加ライブラリ読み込み 
+        sudo -iu postgres psql -d postgres -c "CREATE EXTENSION pg_stat_statements" 
+        sudo -iu postgres psql -d postgres -c "CREATE EXTENSION pg_store_plans" 
+        
+        
+        # pg_stats_reporterの初期セットアップ
+        ## set repository db 
+        sed -i s/'host = dbserver01'/'host = localhost'/g /etc/pg_stats_reporter.ini 
+        sed -i s/';password ='/'password = password'/g /etc/pg_stats_reporter.ini 
+        # change SELinux for DB 
+        # https://dev.classmethod.jp/articles/redhat-selinx-might-block-network-connection-to-servers-from-apache-php/ 
+        # sudo setsebool -P httpd_can_network_connect_db=1 
+        # sudo chcon -h system_u:httpd_sys_rw_content_t /var/www/pg_stats_reporter_lib/{cache,compiled} 
+        sed -i s/'SELINUX=enforcing'/'SELINUX=disabled'/g /etc/selinux/config 
+        # sudo systemctl start httpd.service 
+        systemctl enable httpd.service 
+        systemctl start httpd.service
+        
+        
+        # TODO:以下のツールの初期セットアップ
+        #pg_repack_14-1.4.7-1.rhel7.x86_64.rpm
+        #orafce_14-3.18.1-1.rhel7.x86_64.rpm
+        
+        
+        # set sample data 
+        sudo -iu postgres psql -c "create database dvdrental;" 
+        sudo -iu postgres wget --tries=3 https://www.postgresqltutorial.com/wp-content/uploads/2019/05/dvdrental.zip --no-check-certificate
+        sudo -iu postgres unzip dvdrental.zip 
+        sudo -iu postgres /usr/pgsql-14/bin/pg_restore -U postgres -d dvdrental ./dvdrental.tar 
+        
+        
         # hostname設定、SELINUX設定反映のため再起動 
         shutdown -r now
 
