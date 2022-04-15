@@ -1,6 +1,5 @@
 #!/bin/bash
-# hostnameとhostsの設定 
-hostnamectl set-hostname ec2-postgres-1-cf
+# hostsの設定 
 cat <<EOF | sudo tee -a /etc/hosts
 10.5.10.11 ec2-postgres-1-cf
 10.5.10.12 ec2-postgres-2-cf
