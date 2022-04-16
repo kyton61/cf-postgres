@@ -5,12 +5,9 @@ cat <<EOF | sudo tee -a /etc/hosts
 10.5.10.12 ec2-postgres-2-cf
 EOF
 
-# PostgreSQL14.0初期セットアップ手順
-dnf update -y
-
+# PostgreSQL14.0初期セットアップ
 
 # 必要パッケージをdnfでインストール
-dnf install -y wget unzip
 dnf install -y perl-libs # perl-libs is needed by postgresql-contrib 
 
 

@@ -90,6 +90,8 @@ Resources:
       UserData: !Base64 |
         #!/bin/bash
         hostnamectl set-hostname ec2-postgres-1-cf
+        dnf update -y
+        dnf install -y wget unzip
         wget https://raw.githubusercontent.com/kyton61/cf-postgres/SR-rhel8.4_psql14/setup.sh
         sh setup.sh
       Tags:
@@ -114,6 +116,8 @@ Resources:
       UserData: !Base64 |
         #!/bin/bash
         hostnamectl set-hostname ec2-postgres-2-cf
+        dnf update -y
+        dnf install -y wget unzip
         wget https://raw.githubusercontent.com/kyton61/cf-postgres/SR-rhel8.4_psql14/setup.sh
         sh setup.sh
       Tags:
