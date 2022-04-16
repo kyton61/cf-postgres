@@ -92,8 +92,8 @@ Resources:
         hostnamectl set-hostname ec2-postgres-1-cf
         dnf update -y
         dnf install -y wget unzip
-        wget https://raw.githubusercontent.com/kyton61/cf-postgres/SR-rhel8.4_psql14/setup.sh
-        sh setup.sh
+        wget https://raw.githubusercontent.com/kyton61/cf-postgres/SR-rhel8.4_psql14/setup_primary.sh
+        sh setup_primary.sh
       Tags:
         - Key: Name
           Value: ec2-postgres-1-cf
@@ -118,8 +118,8 @@ Resources:
         hostnamectl set-hostname ec2-postgres-2-cf
         dnf update -y
         dnf install -y wget unzip
-        wget https://raw.githubusercontent.com/kyton61/cf-postgres/SR-rhel8.4_psql14/setup.sh
-        sh setup.sh
+        wget https://raw.githubusercontent.com/kyton61/cf-postgres/SR-rhel8.4_psql14/setup_standby.sh
+        sh setup_standby.sh
       Tags:
         - Key: Name
           Value: ec2-postgres-2-cf
