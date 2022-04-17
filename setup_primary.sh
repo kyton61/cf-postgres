@@ -100,6 +100,8 @@ nginx-filesystem-1.14.1-9.module_el8.0.0+1060+3ab382d3.noarch.rpm
 
 
 # postgre本体の初期セットアップ
+# set bin command path 
+sudo -iu postgres echo "export PATH=$PATH:/usr/pgsql-14/bin/" >> /var/lib/pgsql/.pgsql_profile
 ## ロケールなし、エンコーディングはUTF-8
 sudo -iu postgres initdb --no-locale --encoding=utf-8
 ## TODO:クラスタDBディレクトリの指定する
@@ -107,8 +109,6 @@ systemctl enable postgresql-14
 systemctl start postgresql-14
 # set PostgreSQL admin user's password 
 sudo -iu postgres psql -c "alter user postgres with password 'password'" 
-# set bin command path 
-sudo -iu postgres echo "export PATH=$PATH:/usr/pgsql-14/bin/" >> /var/lib/pgsql/.pgsql_profile 
 # Enabling remote Database connections 
 echo "listen_addresses = '*'" >> /var/lib/pgsql/14/data/postgresql.conf 
 # Accept from anywhere (not recommended) 
