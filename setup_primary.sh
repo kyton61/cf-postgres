@@ -101,7 +101,7 @@ nginx-filesystem-1.14.1-9.module_el8.0.0+1060+3ab382d3.noarch.rpm
 
 # postgre本体の初期セットアップ
 ## ロケールなし、エンコーディングはUTF-8
-/usr/pgsql-14/bin/postgresql-14-setup initdb --no-locale --encoding=utf-8
+sudo -iu postgres initdb --no-locale --encoding=utf-8
 ## TODO:クラスタDBディレクトリの指定する
 systemctl enable postgresql-14
 systemctl start postgresql-14
