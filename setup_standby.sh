@@ -1,4 +1,7 @@
 #!/bin/bash
+# timezoneの設定
+timedatectl set-timezone Asia/Tokyo
+
 # hostsの設定 
 cat <<EOF | sudo tee -a /etc/hosts
 10.5.10.11 ec2-postgres-1-cf
@@ -97,6 +100,11 @@ mailcap-2.1.48-3.el8.noarch.rpm \
 centos-logos-httpd-85.8-2.el8.noarch.rpm \
 nginx-filesystem-1.14.1-9.module_el8.0.0+1060+3ab382d3.noarch.rpm
 
+# pg_rman用設定
+## アーカイブディレクトリ作成
+mkdir -p /var/lib/pgsql/14/arch
+chmod 700 /var/lib/pgsql/14/arch
+chown postgres:postgres /var/lib/pgsql/14/arch
 
 # change SELinux for DB
 sed -i s/'SELINUX=enforcing'/'SELINUX=disabled'/g /etc/selinux/config

@@ -10,6 +10,8 @@ psql -h ec2-postgres-1-cf -U postgres
 ## パスワードを入力：password
 select * from pg_create_physical_replication_slot('db02_repl_slot');
 select slot_name, slot_type, active, wal_status from pg_replication_slots;
+\q
+exit
 ```
 
 primaryサーバのデータコピー
@@ -40,7 +42,7 @@ systemctl start postgresql-14
 ```
 su - postgres
 createuser -U postgres -d -P testuser
-testuser
+## パスワードを2回入力
 createdb -U testuser testdb
 psql -U testuser testdb
 testdb=# create table test_table (id int);

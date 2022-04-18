@@ -1,4 +1,7 @@
 #!/bin/bash
+# timezoneの設定
+timedatectl set-timezone Asia/Tokyo
+
 # hostsの設定 
 cat <<EOF | sudo tee -a /etc/hosts
 10.5.10.11 ec2-postgres-1-cf
@@ -145,7 +148,7 @@ log_autovacuum_min_duration = 0                 # 自動バキュームを記録
 #pg_statsinfo.long_lock_threshold = 30s         # ロック競合情報に記録する対象の条件(閾値)を指定する
 EOF
 ## set pg_hba.conf
-155 sed -i '1s/^/local   all             postgres                                ident\n/' /var/lib/pgsql/14/data/pg_hba.conf  
+sed -i '1s/^/local   all             postgres                                ident\n/' /var/lib/pgsql/14/data/pg_hba.conf  
 
 # streaming replication設定
 ## Set postgresql.conf
@@ -163,6 +166,18 @@ EOF
 ## replication用ユーザの追加
 sudo -iu postgres createuser -U postgres --replication repl
 
+
+# pg_rman用設定
+## アーカイブディレクトリ作成
+mkdir -p /var/lib/pgsql/14/arch
+chmod 700 /var/lib/pgsql/14/arch
+chown postgres:postgres /var/lib/pgsql/14/arch
+## pg_rman動作確認用にアーカイブログモードに設定
+cat <<EOF >> /var/lib/pgsql/14/data/postgresql.conf
+archive_mode = on
+archive_command = 'cp %p /var/lib/pgsql/14/arch/%f'
+archive_timeout = 60
+EOF
 
 ## 追加ライブラリ読み込み
 sudo -iu postgres psql -d postgres -c "CREATE EXTENSION pg_stat_statements"
