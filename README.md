@@ -16,7 +16,7 @@ exit
 
 primaryサーバのデータコピー
 ```
-sudo -u postgres pg_basebackup --pgdata /var/lib/pgsql/14/data --format=p \
+sudo -iu postgres pg_basebackup --pgdata /var/lib/pgsql/14/data --format=p \
 --write-recovery-conf --checkpoint=fast --label=mffb --progress \
 --host=ec2-postgres-1-cf --port=5432 --username=repl
 ```

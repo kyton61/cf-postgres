@@ -100,6 +100,10 @@ mailcap-2.1.48-3.el8.noarch.rpm \
 centos-logos-httpd-85.8-2.el8.noarch.rpm \
 nginx-filesystem-1.14.1-9.module_el8.0.0+1060+3ab382d3.noarch.rpm
 
+# postgre本体の初期セットアップ
+# set bin command path 
+sudo -iu postgres echo "export PATH=$PATH:/usr/pgsql-14/bin/" >> /var/lib/pgsql/.pgsql_profile
+
 # pg_rman用設定
 ## アーカイブディレクトリ作成
 mkdir -p /var/lib/pgsql/14/arch
