@@ -150,21 +150,11 @@ EOF
 ## set pg_hba.conf
 sed -i '1s/^/local   all             postgres                                ident\n/' /var/lib/pgsql/14/data/pg_hba.conf  
 
-# streaming replication設定
-## Set postgresql.conf
-cat <<EOF >> /var/lib/pgsql/14/data/postgresql.conf
-wal_level = replica
-max_wal_senders = 10
-wal_keep_size = '1GB'
-wal_compression = on
-EOF
 ## set pg_hba.conf
 cat <<EOF >> /var/lib/pgsql/14/data/pg_hba.conf
 host    all          all   10.5.10.0/24     trust
 host    replication  repl  10.5.10.0/24   trust
 EOF
-## replication用ユーザの追加
-sudo -iu postgres createuser -U postgres --replication repl
 
 
 # pg_rman用設定
@@ -186,16 +176,16 @@ sudo -iu postgres psql -d postgres -c "CREATE EXTENSION pg_store_plans"
 
 # pg_stats_reporterの初期セットアップ
 ## set repository db
-sed -i s/'host = dbserver01'/'host = localhost'/g /etc/pg_stats_reporter.ini
-sed -i s/';password ='/'password = password'/g /etc/pg_stats_reporter.ini
+#sed -i s/'host = dbserver01'/'host = localhost'/g /etc/pg_stats_reporter.ini
+#sed -i s/';password ='/'password = password'/g /etc/pg_stats_reporter.ini
 # change SELinux for DB
 # https://dev.classmethod.jp/articles/redhat-selinx-might-block-network-connection-to-servers-from-apache-php/ 
 # sudo setsebool -P httpd_can_network_connect_db=1 
 # sudo chcon -h system_u:httpd_sys_rw_content_t /var/www/pg_stats_reporter_lib/{cache,compiled} 
 sed -i s/'SELINUX=enforcing'/'SELINUX=disabled'/g /etc/selinux/config
 # sudo systemctl start httpd.service
-systemctl enable httpd.service
-systemctl start httpd.service
+#systemctl enable httpd.service
+#systemctl start httpd.service
 
 # hostname設定のため再起動
 shutdown -r now
