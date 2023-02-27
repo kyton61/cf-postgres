@@ -16,9 +16,9 @@ dnf install -y perl-libs # perl-libs is needed by postgresql-contrib
 
 # その他postgreとその周辺ツールのrpmをダウンロード
 ## postgre本体で必要なパッケージ
-wget --tries=3 http://54.169.224.98/centos/8-stream/BaseOS/x86_64/os/Packages/libxslt-1.1.32-6.el8.x86_64.rpm
-wget --tries=3 http://54.169.224.98/centos/8-stream/BaseOS/x86_64/os/Packages/lz4-1.8.3-3.el8_4.x86_64.rpm
-wget --tries=3 http://54.169.224.98/centos/8-stream/BaseOS/x86_64/os/Packages/libicu-60.3-2.el8_1.x86_64.rpm
+wget --tries=3 http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/libxslt-1.1.32-6.el8.x86_64.rpm
+wget --tries=3 http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/lz4-1.8.3-3.el8_4.x86_64.rpm
+wget --tries=3 http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/libicu-60.3-2.el8_1.x86_64.rpm
 ## postgre本体
 wget --tries=3 https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-8.4-x86_64/postgresql14-14.0-1PGDG.rhel8.x86_64.rpm
 wget --tries=3 https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-8.4-x86_64/postgresql14-server-14.0-1PGDG.rhel8.x86_64.rpm
@@ -35,27 +35,27 @@ wget --tries=3 https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-8.4-
 wget --tries=3 https://download.postgresql.org/pub/repos/yum/14/redhat/rhel-8-x86_64/orafce_14-3.18.1-1.rhel8.x86_64.rpm
 ## postgre周辺ツール（pg_stats_reporter関連）
 wget --tries=3 https://github.com/ossc-db/pg_stats_reporter/releases/download/14.0/pg_stats_reporter-14.0-1.el8.noarch.rpm
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/apr-1.6.3-12.el8.x86_64.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/apr-util-openssl-1.6.1-6.el8.x86_64.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/apr-util-bdb-1.6.1-6.el8.x86_64.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/apr-util-1.6.1-6.el8.x86_64.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/php-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/php-common-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/php-fpm-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/php-intl-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/php-cli-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/php-xml-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/php-pdo-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/php-pgsql-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/mod_http2-1.15.7-3.module_el8.4.0+778+c970deab.x86_64.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/libpq-13.3-1.el8_4.x86_64.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/httpd-tools-2.4.37-43.module_el8.5.0+1022+b541f3b1.x86_64.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/httpd-filesystem-2.4.37-43.module_el8.5.0+1022+b541f3b1.noarch.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/httpd-2.4.37-43.module_el8.5.0+1022+b541f3b1.x86_64.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/libxslt-devel-1.1.32-6.el8.x86_64.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/nginx-filesystem-1.14.1-9.module_el8.0.0+1060+3ab382d3.noarch.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/BaseOS/x86_64/os/Packages/mailcap-2.1.48-3.el8.noarch.rpm 
-wget --tries=3 http://54.169.224.98/centos/8-stream/AppStream/x86_64/os/Packages/centos-logos-httpd-85.8-2.el8.noarch.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/apr-1.6.3-12.el8.x86_64.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/apr-util-openssl-1.6.1-6.el8.x86_64.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/apr-util-bdb-1.6.1-6.el8.x86_64.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/apr-util-1.6.1-6.el8.x86_64.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/php-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/php-common-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/php-fpm-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/php-intl-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/php-cli-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/php-xml-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/php-pdo-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/php-pgsql-7.2.24-1.module_el8.2.0+313+b04d0a66.x86_64.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/mod_http2-1.15.7-3.module_el8.4.0+778+c970deab.x86_64.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/libpq-13.3-1.el8_4.x86_64.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/httpd-tools-2.4.37-43.module_el8.5.0+1022+b541f3b1.x86_64.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/httpd-filesystem-2.4.37-43.module_el8.5.0+1022+b541f3b1.noarch.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/httpd-2.4.37-43.module_el8.5.0+1022+b541f3b1.x86_64.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/libxslt-devel-1.1.32-6.el8.x86_64.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/nginx-filesystem-1.14.1-9.module_el8.0.0+1060+3ab382d3.noarch.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/BaseOS/x86_64/os/Packages/mailcap-2.1.48-3.el8.noarch.rpm 
+wget --tries=3 http://mirror.centos.org/centos/8-stream/AppStream/x86_64/os/Packages/centos-logos-httpd-85.8-2.el8.noarch.rpm 
 
 
 # postgreと周辺ツールのインストール
